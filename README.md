@@ -18,7 +18,7 @@ This repo implements **binary logistic regression** from scratch in NumPy and ex
 For a feature vector \(x \in \mathbb{R}^d\), logistic regression models
 
 \[
-p(y=1 \mid x;\theta) = \sigma(z), \quad z = x^\top \theta
+$p(y=1 \mid x;\theta) = \sigma(z), \quad z = x^\top \theta$
 \]
 
 where the sigmoid function is
