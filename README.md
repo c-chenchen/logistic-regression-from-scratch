@@ -1,12 +1,18 @@
 # Logistic Regression From Scratch
 
-This repository implements **logistic regression from scratch** and explains the full mathematical derivation behind the model.
+This repository implements **logistic regression from scratch** using NumPy and explains the full mathematical derivation behind the algorithm.
+
+The goal is to understand:
+- where the logistic model comes from
+- how the loss function is derived
+- how gradient descent updates the parameters
+- how predictions are made
 
 ---
 
-## 1) Logistic Regression Model
+## 1. Logistic Regression Model
 
-For a feature vector \( x \in \mathbb{R}^d \), logistic regression models the probability of the positive class as:
+Given an input vector \( x \in \mathbb{R}^d \), logistic regression models the probability of the positive class as:
 
 $$
 P(y = 1 \mid x) = \sigma(z)
@@ -18,17 +24,19 @@ $$
 z = x^\top \theta
 $$
 
-and the sigmoid function is defined as:
+and the **sigmoid function** is defined as:
 
 $$
 \sigma(z) = \frac{1}{1 + e^{-z}}
 $$
 
+This maps any real number to the interval \( (0, 1) \), allowing it to be interpreted as a probability.
+
 ---
 
-## 2) Bias Term
+## 2. Adding the Bias Term
 
-To include an intercept term, we augment the feature vector:
+To allow the model to learn an intercept, we augment the feature vector:
 
 $$
 x' = [1, x_1, x_2, \dots, x_d]
@@ -40,93 +48,98 @@ $$
 \theta = [\theta_0, \theta_1, \dots, \theta_d]
 $$
 
-This allows the model to learn a baseline probability even when all features are zero.
+The model is now:
+
+$$
+z = \theta_0 + \theta_1 x_1 + \dots + \theta_d x_d
+$$
+
+The bias term allows the model to shift the decision boundary instead of forcing it through the origin.
 
 ---
 
-## 3) Probabilistic Interpretation
+## 3. Probabilistic Interpretation
 
-The target variable is modeled as a Bernoulli random variable:
+Logistic regression assumes the target variable follows a Bernoulli distribution:
 
 $$
 Y \mid X \sim \text{Bernoulli}(p)
 $$
 
-where
+where:
 
 $$
 p = \sigma(x^\top \theta)
 $$
 
-Thus,
+So the probability mass function is:
 
 $$
-P(Y = 1 \mid X) = \sigma(x^\top \theta)
-$$
-
-and
-
-$$
-P(Y = 0 \mid X) = 1 - \sigma(x^\top \theta)
+P(Y = y \mid X) = p^y (1 - p)^{1 - y}
 $$
 
 ---
 
-## 4) Likelihood and Loss Function
+## 4. Likelihood and Loss Function
 
-The likelihood of the dataset is:
+Given a dataset of \( m \) independent samples, the likelihood is:
 
 $$
 \mathcal{L}(\theta)
 = \prod_{i=1}^{m} p_i^{y_i}(1 - p_i)^{1 - y_i}
 $$
 
-Taking the negative log-likelihood gives the loss:
+Taking the negative log-likelihood gives the **binary cross-entropy loss**:
 
 $$
 \mathcal{L}(\theta)
-= -\frac{1}{m} \sum_{i=1}^{m}
+= -\frac{1}{m}
+\sum_{i=1}^{m}
 \left[
 y_i \log(p_i) + (1 - y_i)\log(1 - p_i)
 \right]
 $$
 
-This is known as the **binary cross-entropy loss**.
+This is the function minimized during training.
 
 ---
 
-## 5) Gradient of the Loss
+## 5. Gradient of the Loss
 
-The gradient with respect to the parameters is:
+To optimize the parameters, we compute the gradient of the loss:
 
 $$
 \nabla_\theta \mathcal{L}
 = \frac{1}{m} X^\top (\sigma(X\theta) - y)
 $$
 
+This expression tells us how to adjust the parameters to reduce the loss.
+
 ---
 
-## 6) Gradient Descent Update
+## 6. Gradient Descent Update Rule
 
-The parameters are updated using:
+The parameters are updated iteratively:
 
 $$
 \theta \leftarrow \theta - \alpha \nabla_\theta \mathcal{L}
 $$
 
-where \( \alpha \) is the learning rate.
+where:
+- \( \alpha \) is the learning rate
+- smaller values lead to slower but more stable convergence
 
 ---
 
-## 7) Prediction
+## 7. Prediction
 
-Predicted probabilities:
+Once the model is trained, predictions are made as:
 
 $$
 \hat{p} = \sigma(X\theta)
 $$
 
-Predicted class labels:
+and converted to class labels using a threshold:
 
 $$
 \hat{y} =
@@ -138,16 +151,30 @@ $$
 
 ---
 
-## 8) Summary
+## 8. Interpretation
 
-- Logistic regression models the probability of a binary outcome  
-- The sigmoid maps real values to probabilities  
-- The bias term captures the baseline likelihood  
-- Training minimizes cross-entropy via gradient descent  
+- The model outputs **probabilities**, not hard labels.
+- The bias term represents the baseline log-odds.
+- The sigmoid converts linear scores into valid probabilities.
+- Gradient descent finds parameters that minimize cross-entropy loss.
 
 ---
 
-## 9) Files
+## 9. Files in This Repository
 
-- `logistic_regression.py` — implementation from scratch  
-- `README.md` — mathematical explanation and derivation
+- `logistic_regression.py` — full NumPy implementation  
+- `README.md` — mathematical explanation and theory  
+
+---
+
+## 10. Summary
+
+- Logistic regression models probabilities using a sigmoid
+- Training is done via maximum likelihood estimation
+- The loss function is cross-entropy
+- Gradient descent is used for optimization
+- The model is interpretable and probabilistic
+
+---
+
+
