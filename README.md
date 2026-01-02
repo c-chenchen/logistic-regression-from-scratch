@@ -1,180 +1,236 @@
-# Logistic Regression From Scratch
+# Logistic Regression From Scratch (with Full Derivation + Code Explanation)
 
-This repository implements **logistic regression from scratch** using NumPy and explains the full mathematical derivation behind the algorithm.
-
-The goal is to understand:
-- where the logistic model comes from
-- how the loss function is derived
-- how gradient descent updates the parameters
-- how predictions are made
-
----
-
-## 1. Logistic Regression Model
-
-Given an input vector \( x \in \mathbb{R}^d \), logistic regression models the probability of the positive class as:
-
-$$
-P(y = 1 \mid x) = \sigma(z)
-$$
-
-where
-
-$$
-z = x^\top \theta
-$$
-
-and the **sigmoid function** is defined as:
-
-$$
-\sigma(z) = \frac{1}{1 + e^{-z}}
-$$
-
-This maps any real number to the interval \( (0, 1) \), allowing it to be interpreted as a probability.
+This repository implements **binary logistic regression** from scratch in NumPy and explains:
+- the Bernoulli likelihood
+- the cross-entropy (negative log-likelihood) loss
+- the gradient derivation (step-by-step algebra)
+- gradient descent training
+- prediction (probabilities + thresholding)
+- evaluation on the **Breast Cancer Wisconsin** dataset (via scikit-learn utilities)
 
 ---
 
-## 2. Adding the Bias Term
-
-To allow the model to learn an intercept, we augment the feature vector:
-
-$$
-x' = [1, x_1, x_2, \dots, x_d]
-$$
-
-and the parameter vector becomes:
-
-$$
-\theta = [\theta_0, \theta_1, \dots, \theta_d]
-$$
-
-The model is now:
-
-$$
-z = \theta_0 + \theta_1 x_1 + \dots + \theta_d x_d
-$$
-
-The bias term allows the model to shift the decision boundary instead of forcing it through the origin.
+## Contents
+- `Logistic_regression.py` — NumPy implementation + evaluation script
+- `README.md` — derivation + explanation of each function and pipeline step
 
 ---
 
-## 3. Probabilistic Interpretation
+## 1) Logistic Regression Model
 
-Logistic regression assumes the target variable follows a Bernoulli distribution:
-
-$$
-Y \mid X \sim \text{Bernoulli}(p)
-$$
-
-where:
+Given a feature vector $x \in \mathbb{R}^d$, logistic regression models the probability of class 1 as:
 
 $$
-p = \sigma(x^\top \theta)
+p(y=1 \mid x;\theta)=\sigma(z), \quad z=x^\top \theta
 $$
 
-So the probability mass function is:
+where the sigmoid function is:
 
 $$
-P(Y = y \mid X) = p^y (1 - p)^{1 - y}
+\sigma(z)=\frac{1}{1+e^{-z}}
+$$
+
+This maps any real number to $(0,1)$, so it can be interpreted as a probability.
+
+---
+
+## 2) Bias / Intercept
+
+To include an intercept term, we augment the input with a constant 1:
+
+$$
+x_b = \begin{bmatrix}1\\x\end{bmatrix}, \quad
+\theta = \begin{bmatrix}\theta_0\\\theta_1\\\vdots\\\theta_d\end{bmatrix}
+$$
+
+Then:
+
+$$
+z = x_b^\top \theta = \theta_0 + \sum_{j=1}^{d}\theta_j x_j
+$$
+
+In code, this is done by adding a column of ones to the feature matrix.
+
+---
+
+## 3) Probabilistic Assumption (Bernoulli)
+
+For each sample $i$, we assume:
+
+$$
+Y_i \mid x_i,\theta \sim \text{Bernoulli}(p_i)
+$$
+
+with
+
+$$
+p_i = \sigma(x_{b,i}^\top \theta)
+$$
+
+The Bernoulli PMF is:
+
+$$
+P(Y_i=y_i \mid x_i,\theta)=p_i^{y_i}(1-p_i)^{1-y_i}
 $$
 
 ---
 
-## 4. Likelihood and Loss Function
+## 4) Likelihood and Log-Likelihood
 
-Given a dataset of \( m \) independent samples, the likelihood is:
-
-$$
-\mathcal{L}(\theta)
-= \prod_{i=1}^{m} p_i^{y_i}(1 - p_i)^{1 - y_i}
-$$
-
-Taking the negative log-likelihood gives the **binary cross-entropy loss**:
+Assuming i.i.d. samples, the likelihood of the dataset is:
 
 $$
-\mathcal{L}(\theta)
-= -\frac{1}{m}
-\sum_{i=1}^{m}
-\left[
-y_i \log(p_i) + (1 - y_i)\log(1 - p_i)
-\right]
+\mathcal{L}(\theta)=\prod_{i=1}^{m} p_i^{y_i}(1-p_i)^{1-y_i}
 $$
 
-This is the function minimized during training.
-
----
-
-## 5. Gradient of the Loss
-
-To optimize the parameters, we compute the gradient of the loss:
+Taking logs:
 
 $$
-\nabla_\theta \mathcal{L}
-= \frac{1}{m} X^\top (\sigma(X\theta) - y)
+\ell(\theta)=\sum_{i=1}^{m}\left[y_i\log(p_i) + (1-y_i)\log(1-p_i)\right]
 $$
 
-This expression tells us how to adjust the parameters to reduce the loss.
-
----
-
-## 6. Gradient Descent Update Rule
-
-The parameters are updated iteratively:
+We usually **minimize** the negative average log-likelihood (binary cross-entropy):
 
 $$
-\theta \leftarrow \theta - \alpha \nabla_\theta \mathcal{L}
-$$
-
-where:
-- \( \alpha \) is the learning rate
-- smaller values lead to slower but more stable convergence
-
----
-
-## 7. Prediction
-
-Once the model is trained, predictions are made as:
-
-$$
-\hat{p} = \sigma(X\theta)
-$$
-
-and converted to class labels using a threshold:
-
-$$
-\hat{y} =
-\begin{cases}
-1 & \text{if } \hat{p} \ge 0.5 \\
-0 & \text{otherwise}
-\end{cases}
+J(\theta)=-\frac{1}{m}\ell(\theta)
+= -\frac{1}{m}\sum_{i=1}^{m}\left[y_i\log(p_i) + (1-y_i)\log(1-p_i)\right]
 $$
 
 ---
 
-## 8. Interpretation
+## 5) Full Gradient Derivation (Algebra)
 
-- The model outputs **probabilities**, not hard labels.
-- The bias term represents the baseline log-odds.
-- The sigmoid converts linear scores into valid probabilities.
-- Gradient descent finds parameters that minimize cross-entropy loss.
+Let:
+
+$$
+z_i = x_{b,i}^\top \theta,\quad p_i=\sigma(z_i)
+$$
+
+Start from the log-likelihood for one sample:
+
+$$
+\log P(y_i \mid x_i,\theta)
+= y_i\log(p_i) + (1-y_i)\log(1-p_i)
+$$
+
+Differentiate with respect to $\theta$.
+
+### Step 1: Use chain rule
+
+$$
+\frac{\partial}{\partial \theta}\log(p_i)
+= \frac{1}{p_i}\frac{\partial p_i}{\partial \theta}
+$$
+
+$$
+\frac{\partial}{\partial \theta}\log(1-p_i)
+= \frac{-1}{1-p_i}\frac{\partial p_i}{\partial \theta}
+$$
+
+So:
+
+$$
+\frac{\partial}{\partial \theta}
+\left[y_i\log(p_i) + (1-y_i)\log(1-p_i)\right]
+=
+y_i\frac{1}{p_i}\frac{\partial p_i}{\partial \theta}
+-(1-y_i)\frac{1}{1-p_i}\frac{\partial p_i}{\partial \theta}
+$$
+
+Factor out $\frac{\partial p_i}{\partial \theta}$:
+
+$$
+=
+\left[\frac{y_i}{p_i} - \frac{1-y_i}{1-p_i}\right]\frac{\partial p_i}{\partial \theta}
+$$
+
+### Step 2: Compute $\frac{\partial p_i}{\partial \theta}$
+
+We have $p_i=\sigma(z_i)$ and $z_i=x_{b,i}^\top \theta$.
+
+Sigmoid derivative:
+
+$$
+\sigma'(z)=\sigma(z)(1-\sigma(z))
+$$
+
+So:
+
+$$
+\frac{\partial p_i}{\partial \theta}
+= \sigma'(z_i)\frac{\partial z_i}{\partial \theta}
+= p_i(1-p_i)x_{b,i}
+$$
+
+### Step 3: Substitute back and simplify
+
+$$
+\left[\frac{y_i}{p_i} - \frac{1-y_i}{1-p_i}\right]p_i(1-p_i)x_{b,i}
+$$
+
+Distribute:
+
+$$
+=
+\left[y_i(1-p_i) - (1-y_i)p_i\right]x_{b,i}
+$$
+
+Expand:
+
+$$
+= (y_i - y_ip_i - p_i + y_ip_i)x_{b,i}
+$$
+
+Cancel terms:
+
+$$
+= (y_i - p_i)x_{b,i}
+$$
+
+So the gradient of the *log-likelihood* is:
+
+$$
+\nabla_\theta \ell(\theta) = \sum_{i=1}^{m}(y_i - p_i)x_{b,i}
+$$
+
+For the **loss** $J(\theta)=-\frac{1}{m}\ell(\theta)$:
+
+$$
+\nabla_\theta J(\theta)=\frac{1}{m}\sum_{i=1}^{m}(p_i-y_i)x_{b,i}
+$$
+
+In matrix form:
+
+$$
+\nabla_\theta J(\theta)=\frac{1}{m}X_b^\top(\sigma(X_b\theta)-y)
+$$
+
+This is exactly what we implement.
 
 ---
 
-## 9. Files in This Repository
+## 6) Gradient Descent Update
 
-- `logistic_regression.py` — full NumPy implementation  
-- `README.md` — mathematical explanation and theory  
+Gradient descent repeatedly updates:
+
+$$
+\theta \leftarrow \theta - \alpha \nabla_\theta J(\theta)
+$$
+
+where $\alpha$ is the learning rate.
+
+---
+
+## 7) Code Explanation (Line-by-Line Mapping)
+
+Below is the implementation used in this repository and how it matches the derivation.
 
 ---
 
-## 10. Summary
+### `sigmoid(z)`
 
-- Logistic regression models probabilities using a sigmoid
-- Training is done via maximum likelihood estimation
-- The loss function is cross-entropy
-- Gradient descent is used for optimization
-- The model is interpretable and probabilistic
-
----
+```python
+def sigmoid(z):
+    return 1.0/(1.0 + np.exp(-z))
 
 
