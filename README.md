@@ -1,207 +1,153 @@
-# Logistic Regression From Scratch (with Derivation)
+# Logistic Regression From Scratch
 
-This repo implements **binary logistic regression** from scratch in NumPy and explains the full derivation:
-- the Bernoulli likelihood
-- the cross-entropy (negative log-likelihood) loss
-- the gradient
-- gradient descent training
-- prediction (probabilities + thresholding)
-
-## Contents
-- `Logistic_regression.py` (or notebook): NumPy implementation
-- `README.md`: derivation + explanation
+This repository implements **logistic regression from scratch** and explains the full mathematical derivation behind the model.
 
 ---
 
 ## 1) Logistic Regression Model
 
-For a feature vector $\(x \in \mathbb{R}^d\)$, logistic regression models
+For a feature vector \( x \in \mathbb{R}^d \), logistic regression models the probability of the positive class as:
 
-\
-$p(y=1 \mid x;\theta) = \sigma(z), \quad z = x^\top \theta$
-\
+$$
+P(y = 1 \mid x) = \sigma(z)
+$$
 
-where the sigmoid function is
+where
 
-\
-$\sigma(z) = \frac{1}{1 + e^{-z}}$
-\
+$$
+z = x^\top \theta
+$$
 
-### Bias / Intercept
-To include an intercept term, we augment features:
+and the sigmoid function is defined as:
 
-\
-$x_b = \begin{bmatrix} 1 \\ x \end{bmatrix}, \quad
-\theta = \begin{bmatrix} \theta_0 \\ \theta_1 \\ \vdots \\ \theta_d \end{bmatrix}$
-\
-
-so that
-
-\[
-$z = x_b^\top \theta = \theta_0 + \sum_{j=1}^{d}\theta_j x_j$
-\]
-
-In code this is done by adding a column of ones to $\(X\)$.
+$$
+\sigma(z) = \frac{1}{1 + e^{-z}}
+$$
 
 ---
 
-## 2) Probabilistic Assumption (Bernoulli)
+## 2) Bias Term
 
-For each sample \(i\), the label $\(y_i \in \{0,1\}\)$ is modeled as:
+To include an intercept term, we augment the feature vector:
 
-\[
-$Y_i \mid x_i, \theta \sim \text{Bernoulli}(p_i),
-\quad p_i = \sigma(x_i^\top \theta)$
-\]
+$$
+x' = [1, x_1, x_2, \dots, x_d]
+$$
 
-The Bernoulli PMF is:
+and the parameter vector becomes:
 
-\[
-$P(y_i \mid x_i, \theta)
-= p_i^{y_i}(1-p_i)^{1-y_i}$
-\]
+$$
+\theta = [\theta_0, \theta_1, \dots, \theta_d]
+$$
 
----
-
-## 3) Likelihood, Log-Likelihood, and Loss
-
-Assuming i.i.d. samples, the likelihood is:
-
-\[
-$\mathcal{L}(\theta)
-= \prod_{i=1}^{m} p_i^{y_i}(1-p_i)^{1-y_i}$
-\]
-
-Taking logs:
-
-\[
-$\ell(\theta)
-= \sum_{i=1}^{m}\left[
-y_i\log(p_i) + (1-y_i)\log(1-p_i)
-\right]$
-\]
-
-We minimize the **negative average log-likelihood** (binary cross-entropy):
-
-\[
-$J(\theta)
-= -\frac{1}{m}\sum_{i=1}^{m}\left[
-y_i\log(p_i) + (1-y_i)\log(1-p_i)
-\right]$
-\]
+This allows the model to learn a baseline probability even when all features are zero.
 
 ---
 
-## 4) Gradient Derivation (Key Result)
+## 3) Probabilistic Interpretation
 
-Let $\(z_i = x_i^\top \theta\) and \(p_i = \sigma(z_i)\)$. Using:
+The target variable is modeled as a Bernoulli random variable:
 
-\[
-$\frac{d}{dz}\sigma(z)=\sigma(z)(1-\sigma(z))$
-\]
+$$
+Y \mid X \sim \text{Bernoulli}(p)
+$$
 
-the gradient of the loss simplifies to:
+where
 
-\[
-$\nabla_\theta J(\theta)
-= \frac{1}{m}\sum_{i=1}^{m}(p_i - y_i)\,x_i$
-\]
+$$
+p = \sigma(x^\top \theta)
+$$
 
-In matrix form:
+Thus,
 
-\[
-$\nabla_\theta J(\theta)
-= \frac{1}{m} X^\top(\sigma(X\theta)-y)$
-\]
+$$
+P(Y = 1 \mid X) = \sigma(x^\top \theta)
+$$
 
-This is the expression implemented in the repo.
+and
 
----
-
-## 5) Optimization (Gradient Descent)
-
-Gradient descent iteratively updates:
-
-\[
-$\theta \leftarrow \theta - \alpha \nabla_\theta J(\theta)$
-\]
-
-where $\(\alpha\)$ is the learning rate.
+$$
+P(Y = 0 \mid X) = 1 - \sigma(x^\top \theta)
+$$
 
 ---
 
-## 6) Prediction
+## 4) Likelihood and Loss Function
 
-### Probability prediction
-\[
-$\hat{p} = \sigma(X\theta)$
-\]
+The likelihood of the dataset is:
 
-### Class prediction (thresholding)
-\[
-$\hat{y} =
+$$
+\mathcal{L}(\theta)
+= \prod_{i=1}^{m} p_i^{y_i}(1 - p_i)^{1 - y_i}
+$$
+
+Taking the negative log-likelihood gives the loss:
+
+$$
+\mathcal{L}(\theta)
+= -\frac{1}{m} \sum_{i=1}^{m}
+\left[
+y_i \log(p_i) + (1 - y_i)\log(1 - p_i)
+\right]
+$$
+
+This is known as the **binary cross-entropy loss**.
+
+---
+
+## 5) Gradient of the Loss
+
+The gradient with respect to the parameters is:
+
+$$
+\nabla_\theta \mathcal{L}
+= \frac{1}{m} X^\top (\sigma(X\theta) - y)
+$$
+
+---
+
+## 6) Gradient Descent Update
+
+The parameters are updated using:
+
+$$
+\theta \leftarrow \theta - \alpha \nabla_\theta \mathcal{L}
+$$
+
+where \( \alpha \) is the learning rate.
+
+---
+
+## 7) Prediction
+
+Predicted probabilities:
+
+$$
+\hat{p} = \sigma(X\theta)
+$$
+
+Predicted class labels:
+
+$$
+\hat{y} =
 \begin{cases}
-1 & \hat{p} \ge 0.5 \\
-0 & \hat{p} < 0.5$
+1 & \text{if } \hat{p} \ge 0.5 \\
+0 & \text{otherwise}
 \end{cases}
-\]
-
-> Note: the threshold can be changed depending on the application (precision/recall tradeoff, class imbalance, etc.).
+$$
 
 ---
 
-# Code Walkthrough (Function-by-Function)
+## 8) Summary
 
-### `sigmoid(z)`
-Implements the sigmoid function:
-\[
-$\sigma(z)=\frac{1}{1+e^{-z}}$
-\]
-
-### `calculate_gradient(theta, X, y)`
-Computes the gradient:
-\[
-$\nabla_\theta J(\theta)=\frac{1}{m}X^\top(\sigma(X\theta)-y)$
-\]
-
-### `gradient_descent(X, y, alpha, num_iter, tol)`
-1. Builds $\(X_b = [\mathbf{1}\ \ X]\)$ to include bias/intercept  
-2. Initializes \(\theta=0\)  
-3. Repeats:
-   - compute gradient
-   - update \(\theta\)
-   - stop early when $\(\|\nabla J(\theta)\| < \text{tol}\)$
-
-### `predict_proba(X, theta)`
-Returns probabilities:
-\[
-$\hat{p}=\sigma(X_b\theta)$
-\]
-
-### `predict(X, theta, threshold)`
-Returns 0/1 predictions based on the chosen threshold.
+- Logistic regression models the probability of a binary outcome  
+- The sigmoid maps real values to probabilities  
+- The bias term captures the baseline likelihood  
+- Training minimizes cross-entropy via gradient descent  
 
 ---
 
-## How to Run
+## 9) Files
 
-Example (breast cancer dataset):
-
-1. Standardize features (important for gradient descent stability)
-2. Train with gradient descent
-3. Evaluate accuracy
-
----
-
-## Notes / Improvements
-- Add the explicit loss computation to monitor convergence
-- Add regularization (L2 / L1)
-- Tune learning rate and iterations
-- Compare against `sklearn.linear_model.LogisticRegression`
-
----
-
-## References
-- Bernoulli likelihood and maximum likelihood estimation
-- Binary cross-entropy / logistic loss
-- Gradient derivation for logistic regression
+- `logistic_regression.py` — implementation from scratch  
+- `README.md` — mathematical explanation and derivation
