@@ -135,13 +135,6 @@ and class labels are assigned using a threshold:
 
 ---
 
-If you want, I can also:
-- add diagrams (decision boundary, sigmoid curve)
-- convert this into a Jupyter notebook
-- add comments directly inside your Python code
-- or format it as a project report
-
-Just tell me 👍
 
 
 
