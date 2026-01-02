@@ -8,7 +8,7 @@ This repo implements **binary logistic regression** from scratch in NumPy and ex
 - prediction (probabilities + thresholding)
 
 ## Contents
-- `logreg_from_scratch.py` (or notebook): NumPy implementation
+- `Logistic_regression.py` (or notebook): NumPy implementation
 - `README.md`: derivation + explanation
 
 ---
