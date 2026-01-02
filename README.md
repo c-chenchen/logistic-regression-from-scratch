@@ -30,10 +30,10 @@ $\sigma(z) = \frac{1}{1 + e^{-z}}$
 ### Bias / Intercept
 To include an intercept term, we augment features:
 
-\[
+\
 $x_b = \begin{bmatrix} 1 \\ x \end{bmatrix}, \quad
 \theta = \begin{bmatrix} \theta_0 \\ \theta_1 \\ \vdots \\ \theta_d \end{bmatrix}$
-\]
+\
 
 so that
 
