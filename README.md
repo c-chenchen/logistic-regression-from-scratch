@@ -142,8 +142,8 @@ $\hat{p} = \sigma(X\theta)$
 $\hat{y} =
 \begin{cases}
 1 & \hat{p} \ge 0.5 \\
-0 & \hat{p} < 0.5
-\end{cases}$
+0 & \hat{p} < 0.5$
+\end{cases}
 \]
 
 > Note: the threshold can be changed depending on the application (precision/recall tradeoff, class imbalance, etc.).
